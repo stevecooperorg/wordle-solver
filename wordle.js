@@ -1,12 +1,17 @@
 #!/Users/steve/.nvm/versions/node/v12.10.0/bin/node
 const fs = require("fs");
 
-const guesses = [
-  "!c!r!a!nE",
-  "!hO!u!sE",
-  "!mO!v!iE",
-  "DODGE"
+let [_a, _b, ...guesses] = [...process.argv];
+
+if (guesses.length == 0) {
+  guesses = [
+    "!c!r!a!nE",
+    "!hO!u!sE",
+    "!mO!v!iE",
+    "DODGE"
   ];
+}
+
 
 console.log("wordle solver");
 console.log("  you guessed:");
@@ -43,6 +48,12 @@ function parse(guess) {
       result.push(yellow(ch));
     }
   }
+
+  if (result.length != 5) {
+    console.log(`${guess} is not a five letter word`);
+    process.exit(1);
+  }
+
   return result;
 }
 
