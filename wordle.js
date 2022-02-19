@@ -37,7 +37,7 @@ function parse(guess) {
   let next_one_is_black = false;
   for (let i =0; i < guess.length; i++) {
     let ch = guess[i];
-    if (ch == "!") {
+    if (ch == "!" || ch==".") {
       next_one_is_black = true;
     } else if (next_one_is_black) {
       next_one_is_black =false;
