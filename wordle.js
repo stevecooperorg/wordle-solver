@@ -179,118 +179,122 @@ const palette = Object.freeze({
   reset: "\x1b[0m"
 });
 
-console.log("wordle solver");
+function play() {
+  console.log("wordle solver");
 
-let [_a, _b, ...rest] = [...process.argv];
-let day_offset=0;
-let verbose=false;
+  let [_a, _b, ...rest] = [...process.argv];
+  let day_offset = 0;
+  let verbose = false;
 
-let guesses = [];
-for (let arg of rest) {
-  if (arg.startsWith('--')) {
-    if (arg.startsWith('--t')) {
-      let digitstr = arg.substring(3);
-      let digit = parseInt(digitstr, 10);
-      if (digit == NaN) {
-        console.log(`${digitstr} is not a number`);
-        process.exit(1);
-      } else {
-        day_offset = digit;
+  let guesses = [];
+  for (let arg of rest) {
+    if (arg.startsWith('--')) {
+      if (arg.startsWith('--t')) {
+        let digitstr = arg.substring(3);
+        let digit = parseInt(digitstr, 10);
+        if (digit == NaN) {
+          console.log(`${digitstr} is not a number`);
+          process.exit(1);
+        } else {
+          day_offset = digit;
+        }
+      } else if (arg == "--v") {
+        verbose = true;
       }
-    } else if (arg == "--v") {
-      verbose = true;
-    }
-  } else {
-    guesses.push(arg);
-  }
-}
-
-let word_list = five_letter_words();
-let today = today_idx();
-let answer = todaysWord(today, day_offset, word_list);
-
-if (verbose) {
-  console.log(`The day offset is ${day_offset}`);
-  console.log(`Today's index is  ${today}`);
-  console.log(`Correct answer is ${answer}`);
-}
-
-console.log("  you guessed:");
-
-for (let guess of guesses) {
-  console.log("    " + guess);
-}
-
-let game = new_game(word_list);
-
-console.log("  let's process your guesses!");
-
-function match(answer, guess) {
-  let greens = []
-  for (let i =0; i < 5; i++) {
-    let answer_ch = answer[i];
-    let guess_ch = guess[i];
-    if (answer_ch == guess_ch) {
-      greens.push(i);
-    }
-  }
-
-  // yellows are characters in both answer and guess, but not in greens
-  let yellows = []
-  for (let i =0; i < 5; i++) {
-    let guess_ch = guess[i];
-    if (answer.includes(guess_ch)) {
-      yellows.push(i);
-    }
-  }
-
-  let result = [];
-  for (let i =0; i < 5; i++) {
-    let guess_ch = guess[i];
-    if (greens.includes(i)) {
-      result.push(green(guess_ch));
-    } else if (yellows.includes(i)) {
-      result.push(yellow(guess_ch));
     } else {
-      result.push(black(guess_ch));
+      guesses.push(arg);
     }
   }
 
-  return result;
-}
+  let word_list = five_letter_words();
+  let today = today_idx();
+  let answer = todaysWord(today, day_offset, word_list);
 
-for (let guess of guesses) {
-  //let parsed = parse(guess);
-  let parsed = match(answer, guess);
-  //console.log(parsed);
+  if (verbose) {
+    console.log(`The day offset is ${day_offset}`);
+    console.log(`Today's index is  ${today}`);
+    console.log(`Correct answer is ${answer}`);
+  }
 
-  for (let i =0; i < 5; i++) {
-    let constraint = parsed[i];
-    let slot = game.slots[i];
-    if (constraint.color=="green") {
-      slot.toGreen(constraint.ch);
-    } else if (constraint.color=="yellow") {
-      slot.exclude(constraint.ch);
-      push_ch(game.required, constraint.ch);
-    } else if (constraint.color == "black") {
-      for (let slot of game.slots) {
-        slot.exclude(constraint.ch);
+  console.log("  you guessed:");
+
+  for (let guess of guesses) {
+    console.log("    " + guess);
+  }
+
+  let game = new_game(word_list);
+
+  console.log("  let's process your guesses!");
+
+  function match(answer, guess) {
+    let greens = []
+    for (let i = 0; i < 5; i++) {
+      let answer_ch = answer[i];
+      let guess_ch = guess[i];
+      if (answer_ch == guess_ch) {
+        greens.push(i);
       }
     }
-  }  
 
-  print_slots(pretty(match(answer, guess)), game);
+    // yellows are characters in both answer and guess, but not in greens
+    let yellows = []
+    for (let i = 0; i < 5; i++) {
+      let guess_ch = guess[i];
+      if (answer.includes(guess_ch)) {
+        yellows.push(i);
+      }
+    }
 
-  let matches = find_matches(game);
+    let result = [];
+    for (let i = 0; i < 5; i++) {
+      let guess_ch = guess[i];
+      if (greens.includes(i)) {
+        result.push(green(guess_ch));
+      } else if (yellows.includes(i)) {
+        result.push(yellow(guess_ch));
+      } else {
+        result.push(black(guess_ch));
+      }
+    }
 
-  if (matches.length < 120) {
-    console.log(`            there are ${matches.length} options: ${matches.join(", ")}`)
-  } else {
-    console.log(`            there are ${matches.length} options.`)
-
+    return result;
   }
-  
-  console.log("");
+
+  for (let guess of guesses) {
+    //let parsed = parse(guess);
+    let parsed = match(answer, guess);
+    //console.log(parsed);
+
+    for (let i = 0; i < 5; i++) {
+      let constraint = parsed[i];
+      let slot = game.slots[i];
+      if (constraint.color == "green") {
+        slot.toGreen(constraint.ch);
+      } else if (constraint.color == "yellow") {
+        slot.exclude(constraint.ch);
+        push_ch(game.required, constraint.ch);
+      } else if (constraint.color == "black") {
+        for (let slot of game.slots) {
+          slot.exclude(constraint.ch);
+        }
+      }
+    }
+
+    print_slots(pretty(match(answer, guess)), game);
+
+    let matches = find_matches(game);
+
+    if (matches.length < 120) {
+      console.log(`            there are ${matches.length} options: ${matches.join(", ")}`)
+    } else {
+      console.log(`            there are ${matches.length} options.`)
+
+    }
+
+    console.log("");
+  }
+
+  print_keyboard(game);
 }
 
-print_keyboard(game);
+play();
