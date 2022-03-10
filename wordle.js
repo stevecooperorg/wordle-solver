@@ -111,6 +111,20 @@ function print_keyboard(game) {
   console.log(kb);
 }
 
+function new_game(word_list) {
+  return ({
+    slots: [
+      new_slot(),
+      new_slot(),
+      new_slot(),
+      new_slot(),
+      new_slot(),
+    ],
+    required: [],
+    words: word_list
+  });
+}
+
 function new_slot() {
   // this can accept anything.
   return ({
@@ -207,18 +221,7 @@ for (let guess of guesses) {
   console.log("    " + guess);
 }
 
-let game = ({ 
-slots: [
-    new_slot(),
-    new_slot(),
-    new_slot(),
-    new_slot(),
-    new_slot(),
-  ],
-  required: [],
-  words: word_list
- });
-
+let game = new_game(word_list);
 
 console.log("  let's process your guesses!");
 
