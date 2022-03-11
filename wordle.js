@@ -1,5 +1,6 @@
 #!/Users/steve/.nvm/versions/node/v12.10.0/bin/node
 const fs = require("fs");
+const path = require("path");
 
 function today_idx() {
   let h1=new Date().setHours(0,0,0,0);
@@ -7,8 +8,6 @@ function today_idx() {
   let t= h1-h2;
   return t;
 }
-
-
 
 function todaysWord(today, day_offset, words) {
   let today_idx = Math.round(today/864e5 - day_offset) % words.length;
@@ -62,7 +61,7 @@ function pretty(parsed) {
   let reset = palette.reset;
   for (let x of parsed) {
     let color = palette[x.color];
-    let bit = `${color}${x.ch}${reset}`;
+    let bit = `${color} ${x.ch} ${reset}`;
     result += bit;
   }
 
@@ -89,6 +88,11 @@ function find_matches(game) {
       }
     }
 
+    // we've matched greens and blacks - how about yellows?
+    for (let yellow of game.required) {
+      result = result.filter(word => word.includes(yellow));
+    }
+
     result.push(word);
   }
 
@@ -96,7 +100,7 @@ function find_matches(game) {
 }
 
 function five_letter_words() {
-  return fs.readFileSync("word-list.txt", "utf-8").split("\n");
+  return fs.readFileSync(path.join(__dirname, "word-list.txt"), "utf-8").split("\n");
 }
 
 function print_slots(guess, game) {
