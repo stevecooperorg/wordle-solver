@@ -1,4 +1,4 @@
-#!/Users/steve/.nvm/versions/node/v12.10.0/bin/node
+#!/usr/local/bin/node
 const fs = require("fs");
 const path = require("path");
 
