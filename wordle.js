@@ -10,7 +10,7 @@ function today_idx() {
 }
 
 function todaysWord(today, day_offset, words) {
-  let today_idx = Math.round(today/864e5 - day_offset) % words.length;
+  let today_idx = (Math.round(today/864e5 - day_offset) +1) % words.length;
   let word = words[today_idx];
   return word
 };
